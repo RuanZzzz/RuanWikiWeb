@@ -9,9 +9,9 @@
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
     >
-      <a-menu-item key="1">ruan</a-menu-item>
-      <a-menu-item key="2">shao</a-menu-item>
-      <a-menu-item key="3">xiang</a-menu-item>
+      <a-menu-item key="1">nav1</a-menu-item>
+      <a-menu-item key="2">nav2</a-menu-item>
+      <a-menu-item key="3">nav3</a-menu-item>
     </a-menu>
   </a-layout-header>
 </template>

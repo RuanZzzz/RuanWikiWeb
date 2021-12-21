@@ -1,26 +1,26 @@
 <template>
   <a-layout>
-
     <!--头部-->
-    <TheHeader></TheHeader>
+    <the-header></the-header>
 
     <!-- 改变的部分 -->
     <router-view />
 
-    <a-layout-footer style="text-align: center;height: 100px;width: 100%;position: absolute;bottom: 0;left: 0">
-      软烧香的Wiki鸭
-    </a-layout-footer>
+    <!--脚部-->
+    <the-footer></the-footer>
   </a-layout>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import TheHeader from '@/components/the-header.vue';
+import TheFooter from '@/components/the-footer.vue';
 
 export default defineComponent({
   name: 'app',
   components: {
-    TheHeader
+    TheHeader,
+    TheFooter
   }
 });
 </script>

@@ -1,20 +1,8 @@
 <template>
   <a-layout>
-    <a-layout-header class="header">
-      <div id="components-layout-demo-top-side-2">
-        <div class="logo" />
-      </div>
-      <a-menu
-          v-model:selectedKeys="selectedKeys1"
-          theme="dark"
-          mode="horizontal"
-          :style="{ lineHeight: '64px' }"
-      >
-        <a-menu-item key="1">nav 1</a-menu-item>
-        <a-menu-item key="2">nav 2</a-menu-item>
-        <a-menu-item key="3">nav 3</a-menu-item>
-      </a-menu>
-    </a-layout-header>
+
+    <!--头部-->
+    <TheHeader></TheHeader>
 
     <!-- 改变的部分 -->
     <router-view />
@@ -24,25 +12,19 @@
     </a-layout-footer>
   </a-layout>
 </template>
+
 <script lang="ts">
-import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons-vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
+import TheHeader from '@/components/the-header.vue';
+
 export default defineComponent({
+  name: 'app',
   components: {
-    UserOutlined,
-    LaptopOutlined,
-    NotificationOutlined,
-  },
-  setup() {
-    return {
-      selectedKeys1: ref<string[]>(['2']),
-      selectedKeys2: ref<string[]>(['1']),
-      collapsed: ref<boolean>(false),
-      openKeys: ref<string[]>(['sub1']),
-    };
-  },
+    TheHeader
+  }
 });
 </script>
+
 <style>
 #components-layout-demo-top-side-2 .logo {
   float: left;

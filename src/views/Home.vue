@@ -47,22 +47,36 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-      Content
+      <pre>{{ebooks}}</pre>
+
     </a-layout-content>
   </a-layout>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent,onMounted,ref } from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
   name: 'Home',
   setup() {
-    console.log("setup");
-    axios.get("http://127.0.0.1:8084/ebook/list?name=Spring").then((response) => {
-      console.log(response);
+
+    // 让ebooks变成一个响应式的数据
+    const ebooks = ref()
+
+    // 在onMounted里面就可以写一些初始化的逻辑
+    onMounted(() => {
+      axios.get("http://127.0.0.1:8084/ebook/list").then((response) => {
+        const data = response.data;
+        ebooks.value = data.content
+
+      });
     })
+
+    // 在setup的方法最后要return出去，这样界面就可以拿到需要的变量
+    return {
+      ebooks
+    }
   }
 });
 </script>

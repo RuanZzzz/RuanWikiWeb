@@ -98,10 +98,11 @@ export default defineComponent({
 
     // 在onMounted里面就可以写一些初始化的逻辑
     onMounted(() => {
-      axios.get(process.env.VUE_APP_SERVER + "/ebook/list").then((response) => {
+      console.log("testruan");
+      axios.get("/ebook/list").then((response) => {
         const data = response.data;
         ebooks.value = data.content
-
+        console.log(response);
       });
     })
 

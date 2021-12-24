@@ -98,7 +98,7 @@ export default defineComponent({
 
     // 在onMounted里面就可以写一些初始化的逻辑
     onMounted(() => {
-      axios.get("http://127.0.0.1:8084/ebook/list").then((response) => {
+      axios.get(process.env.VUE_APP_SERVER + "/ebook/list").then((response) => {
         const data = response.data;
         ebooks.value = data.content
 

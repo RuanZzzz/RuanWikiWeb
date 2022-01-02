@@ -3,7 +3,11 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-
+      <p>
+        <a-button type="primary" @click="add()" size="large">
+          新增
+        </a-button>
+      </p>
       <!-- 电子书表格 -->
       <a-table
         :columns = "columns"
@@ -52,7 +56,7 @@
         <a-input v-model:value="ebook.category2Id" />
       </a-form-item>
       <a-form-item label="描述">
-        <a-input v-model:value="ebook.desc" type="text"/>
+        <a-input v-model:value="ebook.description" type="text"/>
       </a-form-item>
     </a-form>
 
@@ -62,6 +66,7 @@
 <script lang="ts">
   import {defineComponent, onMounted, ref} from "vue";
   import axios from "axios";
+  import { message } from "ant-design-vue";
 
   export default defineComponent({
     name: 'admin-ebook',
@@ -116,7 +121,6 @@
        * 数据查询
        */
       const handleQuery = (params: any) => {
-        console.log(params);
         loading.value = true;
         axios.get("/ebook/list",{
           params: {
@@ -124,7 +128,6 @@
             pageSize : params.pageSize
           }
         }).then((response) => {
-          console.log(params);
           loading.value = false;
           const data = response.data;
           ebooks.value = data.content.list;
@@ -139,7 +142,6 @@
        * 表格点击页码时触发
        */
       const handleTableChange = (pagination: any) => {
-        console.log("自带分页参数" + pagination);
         handleQuery({
           page: pagination.current,
           pageSize: pagination.pageSize
@@ -160,6 +162,8 @@
             modalVisible.value = false;
             modalLoading.value = false;
 
+            message.success('操作成功');
+
             // 重新加载列表
             handleQuery({
               page : pagination.value.current,
@@ -175,6 +179,12 @@
         modalVisible.value = true;
         ebook.value = record;
       }
+      
+      // 新增按钮
+      const add = () => {
+        modalVisible.value = true;
+        ebook.value = {};
+      }
 
       onMounted(() => {
         handleQuery({
@@ -189,7 +199,10 @@
         columns,
         loading,
         handleTableChange, // 因为html需要，所以需要返回
+        
         edit,
+        add,
+        
         ebook,
         modalVisible,
         modalLoading,

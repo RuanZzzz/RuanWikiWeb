@@ -167,11 +167,11 @@
         modalLoading.value = true;
 
         axios.post("/ebook/save",ebook.value).then((response) => {
+          modalLoading.value = false;
           const data = response.data;
 
           if (data.success) {
             modalVisible.value = false;
-            modalLoading.value = false;
 
             message.success('操作成功');
 
@@ -180,6 +180,8 @@
               page : pagination.value.current,
               pageSize : pagination.value.pageSize
             })
+          }else {
+            message.error(data.message);
           }
         })
 

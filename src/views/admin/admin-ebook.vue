@@ -4,9 +4,23 @@
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
       <p>
-        <a-button type="primary" @click="add()" size="large">
-          新增
-        </a-button>
+        <a-form layout="inline" :model="param">
+          <a-form-item>
+            <a-input v-model:value="param.name" placeholder="名称">
+            </a-input>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" @click="handleQuery({page:1,pageSize: pagination.pageSize})">
+              查询
+            </a-button>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" @click="add()" >
+              新增
+            </a-button>
+          </a-form-item>
+        </a-form>
+
       </p>
       <!-- 电子书表格 -->
       <a-table
@@ -78,6 +92,9 @@
   export default defineComponent({
     name: 'admin-ebook',
     setup() {
+      const param = ref();  // 用在搜索框的赋值
+      param.value = {};   // 搜索框的对象，目前用到的属性是param.name
+
       const ebooks = ref();
       const pagination = ref({
         current: 1,
@@ -132,7 +149,8 @@
         axios.get("/ebook/list",{
           params: {
             page : params.page,
-            pageSize : params.pageSize
+            pageSize : params.pageSize,
+            name : param.value.name
           }
         }).then((response) => {
           loading.value = false;
@@ -226,6 +244,7 @@
       });
 
       return {
+        param,
         ebooks,
         pagination,
         columns,
@@ -235,6 +254,7 @@
         edit,
         add,
         handleDelete,
+        handleQuery,
         
         ebook,
         modalVisible,

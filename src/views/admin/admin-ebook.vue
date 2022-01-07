@@ -32,8 +32,8 @@
         @change="handleTableChange"
       >
         <template #cover="{text:cover}">
-          <!--<img v-if="cover" :src="cover" alt="avatar">-->
-          <img style="height: 50px;width: 50px" src="../../../public/image/cover1.png" alt="avatar">
+          <img v-if="cover" :src="cover" alt="avatar" style="width: 30%">
+<!--          <img style="height: 50px;width: 50px" src="../../../public/image/cover1.png" alt="avatar">-->
         </template>
         <template v-slot:action="{text,record}">
           <a-space size="small">
@@ -65,20 +65,42 @@
   >
     <a-form :model="ebook" :label-col="{ span: 6 }" >
       <a-form-item label="封面">
-        <a-input v-model:value="ebook.cover" />
+        <a-upload
+            v-model:file-list="fileList"
+            name="file"
+            list-type="picture-card"
+            class="avatar-uploader"
+            :show-upload-list="false"
+            action="http://127.0.0.1:8084/common/uploadImg"
+            :before-upload="beforeUpload"
+            @change="handleChange"
+        >
+          <img v-if="imageUrl" :src="imageUrl" alt="avatar"/>
+          <div v-else>
+            <loading-outlined v-if="loading"></loading-outlined>
+            <plus-outlined v-else></plus-outlined>
+            <div class="ant-upload-text">Upload</div>
+          </div>
+        </a-upload>
+
       </a-form-item>
       <a-form-item label="名称">
         <a-input v-model:value="ebook.name" />
       </a-form-item>
-      <a-form-item label="分类一">
-        <a-input v-model:value="ebook.category1Id" />
-      </a-form-item>
-      <a-form-item label="分类二">
-        <a-input v-model:value="ebook.category2Id" />
-      </a-form-item>
+<!--      <a-form-item label="分类一">-->
+<!--        <a-input v-model:value="ebook.category1Id" />-->
+<!--      </a-form-item>-->
+<!--      <a-form-item label="分类二">-->
+<!--        <a-input v-model:value="ebook.category2Id" />-->
+<!--      </a-form-item>-->
       <a-form-item label="描述">
         <a-input v-model:value="ebook.description" type="text"/>
       </a-form-item>
+
+      <a-input v-model:value="imgDirPath" type="hidden" ></a-input>
+
+
+
     </a-form>
 
   </a-modal>
@@ -89,10 +111,22 @@
   import axios from "axios";
   import { message } from "ant-design-vue";
   import {Tool} from "@/util/tool";
+  import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
+
+  function getBase64(img: Blob, callback: (base64Url: string) => void) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+  }
 
   export default defineComponent({
     name: 'admin-ebook',
     setup() {
+      // 图片上传
+      const fileList = ref([]);
+      const imageUrl = ref<string>('');
+      const imgDirPath = ref<string>('');
+
       const param = ref();  // 用在搜索框的赋值
       param.value = {};   // 搜索框的对象，目前用到的属性是param.name
 
@@ -179,13 +213,20 @@
       };
 
       // 表单
-      const ebook = ref({});
+      const ebook = ref({
+        name: ref<string>(''),
+        description: ref<string>('')
+      });
       const modalVisible = ref(false);
       const modalLoading = ref(false);
       const handleModalOk = () => {
         modalLoading.value = true;
 
-        axios.post("/ebook/save",ebook.value).then((response) => {
+        axios.post("/ebook/save",{
+          name : ebook.value.name,
+          description : ebook.value.description,
+          imgDirPath : imgDirPath.value
+        }).then((response) => {
           modalLoading.value = false;
           const data = response.data;
 
@@ -215,27 +256,64 @@
       // 新增按钮
       const add = () => {
         modalVisible.value = true;
-        ebook.value = {};
+        imageUrl.value = "";
+        //ebook.value = {};
       }
 
       // 删除
       const handleDelete = (id: number) => {
 
-        axios.delete("/ebook/delete/" + id,ebook.value).then((response) => {
-          const data = response.data;
-
-          if (data.success) {
-            message.success('删除成功');
-
-            // 重新加载列表
-            handleQuery({
-              page : pagination.value.current,
-              pageSize : pagination.value.pageSize
-            })
-          }
-        })
+        // axios.delete("/ebook/delete/" + id,ebook.value).then((response) => {
+        //   const data = response.data;
+        //
+        //   if (data.success) {
+        //     message.success('删除成功');
+        //
+        //     // 重新加载列表
+        //     handleQuery({
+        //       page : pagination.value.current,
+        //       pageSize : pagination.value.pageSize
+        //     })
+        //   }
+        // })
 
       }
+
+      // 上传图片
+      const handleChange = (info: UploadChangeParam) => {
+        if (info.file.status === 'uploading') {
+          loading.value = true;
+          return;
+        }
+        if (info.file.status === 'done') {
+          message.success('upload success');
+          // 赋值，用于存储至数据库
+          imgDirPath.value = info.file.response;
+          // Get this url from response in real world.
+          getBase64(info.file.originFileObj, (base64Url: string) => {
+            // 用来回显的
+            imageUrl.value = base64Url;
+            loading.value = false;
+          });
+
+        }
+        if (info.file.status === 'error') {
+          loading.value = false;
+          message.error('upload error');
+        }
+      };
+
+      const beforeUpload = (file: any) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+          message.error('You can only upload JPG file!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+          message.error('Image must smaller than 2MB!');
+        }
+        return isJpgOrPng && isLt2M;
+      };
 
       onMounted(() => {
         handleQuery({
@@ -260,9 +338,31 @@
         ebook,
         modalVisible,
         modalLoading,
-        handleModalOk
+        handleModalOk,
+
+        fileList,
+        imageUrl,
+        imgDirPath,
+        handleChange,
+        beforeUpload,
       }
     }
   })
 
 </script>
+
+<style>
+.avatar-uploader > .ant-upload {
+  width: 128px;
+  height: 128px;
+}
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+</style>

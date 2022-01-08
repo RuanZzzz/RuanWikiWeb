@@ -285,19 +285,19 @@
       // 删除
       const handleDelete = (id: number) => {
 
-        // axios.delete("/ebook/delete/" + id,ebook.value).then((response) => {
-        //   const data = response.data;
-        //
-        //   if (data.success) {
-        //     message.success('删除成功');
-        //
-        //     // 重新加载列表
-        //     handleQuery({
-        //       page : pagination.value.current,
-        //       pageSize : pagination.value.pageSize
-        //     })
-        //   }
-        // })
+        axios.delete("/ebook/delete/" + id).then((response) => {
+          const data = response.data;
+
+          if (data.success) {
+            message.success('删除成功');
+
+            // 重新加载列表
+            handleQuery({
+              page : pagination.value.current,
+              pageSize : pagination.value.pageSize
+            })
+          }
+        })
 
       }
 

@@ -32,7 +32,7 @@
         @change="handleTableChange"
       >
         <template #cover="{text:cover}">
-          <img v-if="cover" :src="cover" alt="avatar" style="width: 30%">
+          <img v-if="cover" :src="cover" alt="avatar" style="width: 100px;height: 100px">
 <!--          <img style="height: 50px;width: 50px" src="../../../public/image/cover1.png" alt="avatar">-->
         </template>
         <template v-slot:action="{text,record}">
@@ -75,7 +75,7 @@
             :before-upload="beforeUpload"
             @change="handleChange"
         >
-          <img v-if="imageUrl" :src="imageUrl" alt="avatar"/>
+          <img v-if="imageUrl" :src="imageUrl" alt="avatar" style="width: 130px;height: 130px"/>
           <div v-else>
             <loading-outlined v-if="loading"></loading-outlined>
             <plus-outlined v-else></plus-outlined>
@@ -97,7 +97,12 @@
         <a-input v-model:value="ebook.description" type="text"/>
       </a-form-item>
 
-      <a-input v-model:value="imgDirPath" type="hidden" ></a-input>
+<!--      <a-input v-model:value="imgDirPath" type="hidden" ></a-input>-->
+
+      <a-form-item label="图片地址">
+        <a-input v-model:value="imgDirPath" ></a-input>
+      </a-form-item>
+
 
 
 
@@ -214,6 +219,7 @@
 
       // 表单
       const ebook = ref({
+        id: ref<string>(''),
         name: ref<string>(''),
         description: ref<string>('')
       });
@@ -223,6 +229,7 @@
         modalLoading.value = true;
 
         axios.post("/ebook/save",{
+          id : ebook.value.id,
           name : ebook.value.name,
           description : ebook.value.description,
           imgDirPath : imgDirPath.value
@@ -249,15 +256,30 @@
 
       // 编辑按钮
       const edit = (record: any) => {
+        console.log(record);
         modalVisible.value = true;
         ebook.value = Tool.copy(record);
+
+        // 如果有图片，就回显在编辑里和存储图片的地址中
+        if (record.cover != null) {
+          // 赋值，用于存储至数据库
+          imgDirPath.value = record.imgName;
+          // 用来回显
+          imageUrl.value = record.cover;
+        }
       }
       
       // 新增按钮
       const add = () => {
         modalVisible.value = true;
         imageUrl.value = "";
-        //ebook.value = {};
+        ebook.value = {
+          id: "",
+          name: "",
+          description: ""
+        };
+        imgDirPath.value = "";
+        imageUrl.value = "";
       }
 
       // 删除
@@ -288,13 +310,10 @@
         if (info.file.status === 'done') {
           message.success('upload success');
           // 赋值，用于存储至数据库
-          imgDirPath.value = info.file.response;
-          // Get this url from response in real world.
-          getBase64(info.file.originFileObj, (base64Url: string) => {
-            // 用来回显的
-            imageUrl.value = base64Url;
-            loading.value = false;
-          });
+          imgDirPath.value = info.file.response.imgName;
+          // 用来回显
+          imageUrl.value = info.file.response.imgUrl;
+          loading.value = false;
 
         }
         if (info.file.status === 'error') {

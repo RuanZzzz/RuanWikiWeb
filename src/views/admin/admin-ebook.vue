@@ -97,15 +97,7 @@
         <a-input v-model:value="ebook.description" type="text"/>
       </a-form-item>
 
-<!--      <a-input v-model:value="imgDirPath" type="hidden" ></a-input>-->
-
-      <a-form-item label="图片地址">
-        <a-input v-model:value="imgDirPath" ></a-input>
-      </a-form-item>
-
-
-
-
+      <a-input v-model:value="imgDirPath" type="hidden" ></a-input>
     </a-form>
 
   </a-modal>

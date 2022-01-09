@@ -22,7 +22,7 @@
       <a-table
           :columns = "columns"
           :row-key="record => record.id"
-          :data-source="categorys"
+          :data-source="cateTree"
           :loading="loading"
           :pagination="false"
       >
@@ -83,6 +83,7 @@
 
       const categorys = ref();
       const loading = ref(false);
+      const cateTree = ref();
 
       const columns = [
         {
@@ -115,6 +116,9 @@
           const data = response.data;
           if (data.success) {
             categorys.value = data.content;
+
+            cateTree.value = [];
+            cateTree.value = Tool.array2Tree(categorys.value,0);
           }else {
             message.error(data.message);
           }
@@ -181,6 +185,7 @@
       return {
         param,
         categorys,
+        cateTree,
         columns,
         loading,
 

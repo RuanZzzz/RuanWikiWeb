@@ -6,12 +6,8 @@
       <p>
         <a-form layout="inline" :model="param">
           <a-form-item>
-            <a-input v-model:value="param.name" placeholder="名称">
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-button type="primary" @click="handleQuery({page:1,pageSize: pagination.pageSize})">
-              查询
+            <a-button type="primary" @click="handleQuery()">
+              刷新
             </a-button>
           </a-form-item>
           <a-form-item>
@@ -27,9 +23,8 @@
           :columns = "columns"
           :row-key="record => record.id"
           :data-source="categorys"
-          :pagination="pagination"
           :loading="loading"
-          @change="handleTableChange"
+          :pagination="false"
       >
         <template v-slot:action="{text,record}">
           <a-space size="small">
@@ -87,11 +82,6 @@
       param.value = {};   // 搜索框的对象，目前用到的属性是param.name
 
       const categorys = ref();
-      const pagination = ref({
-        current: 1,
-        pageSize: 10,
-        total: 0
-      });
       const loading = ref(false);
 
       const columns = [
@@ -118,37 +108,17 @@
       /**
        * 数据查询
        */
-      const handleQuery = (params: any) => {
+      const handleQuery = () => {
         loading.value = true;
-        axios.get("/category/list",{
-          params: {
-            page : params.page,
-            pageSize : params.pageSize,
-            name : param.value.name
-          }
-        }).then((response) => {
+        axios.get("/category/all").then((response) => {
           loading.value = false;
           const data = response.data;
           if (data.success) {
-            categorys.value = data.content.list;
-
-            // 重置分页按钮
-            pagination.value.current = params.page;
-            pagination.value.total = data.content.total;
+            categorys.value = data.content;
           }else {
             message.error(data.message);
           }
         })
-      };
-
-      /**
-       * 表格点击页码时触发
-       */
-      const handleTableChange = (pagination: any) => {
-        handleQuery({
-          page: pagination.current,
-          pageSize: pagination.pageSize
-        });
       };
 
       // 表单
@@ -168,10 +138,7 @@
             message.success('操作成功');
 
             // 重新加载列表
-            handleQuery({
-              page : pagination.value.current,
-              pageSize : pagination.value.pageSize
-            })
+            handleQuery();
           }else {
             message.error(data.message);
           }
@@ -201,29 +168,21 @@
             message.success('删除成功');
 
             // 重新加载列表
-            handleQuery({
-              page : pagination.value.current,
-              pageSize : pagination.value.pageSize
-            })
+            handleQuery();
           }
         })
 
       }
 
       onMounted(() => {
-        handleQuery({
-          page: 1,
-          pageSize: pagination.value.pageSize
-        });
+        handleQuery();
       });
 
       return {
         param,
         categorys,
-        pagination,
         columns,
         loading,
-        handleTableChange, // 因为html需要，所以需要返回
 
         edit,
         add,

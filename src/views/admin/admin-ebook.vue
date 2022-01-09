@@ -59,7 +59,7 @@
 
   <a-modal
       v-model:visible="modalVisible"
-      title="编辑电子书"
+      title="电子书表单"
       :confirm-loading="modalLoading"
       @ok="handleModalOk"
   >

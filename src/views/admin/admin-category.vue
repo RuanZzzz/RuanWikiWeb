@@ -58,11 +58,21 @@
       <a-form-item label="名称">
         <a-input v-model:value="category.name" />
       </a-form-item>
+      <a-form-item label="父分类">
+        <a-select
+            ref="select"
+            v-model:value="category.parent"
+        >
+          <a-select-option value="0">
+            无
+          </a-select-option>
+          <a-select-option v-for="cate in cateTree" :key="cate.id" :value="cate.id" :disabled="category.id === cate.id">
+            {{cate.name}}
+          </a-select-option>
+        </a-select>
+      </a-form-item>
       <a-form-item label="顺序">
         <a-input v-model:value="category.sort" type="text"/>
-      </a-form-item>
-      <a-form-item label="父分类">
-        <a-input v-model:value="category.parent" type="text"/>
       </a-form-item>
     </a-form>
 

@@ -35,6 +35,9 @@
           <img v-if="cover" :src="cover" alt="avatar" style="width: 100px;height: 100px">
 <!--          <img style="height: 50px;width: 50px" src="../../../public/image/cover1.png" alt="avatar">-->
         </template>
+        <template v-slot:category="{text,record}">
+          <span>{{ getCategoryName(record.category1Id) }} / {{ getCategoryName(record.category2Id) }}</span>
+        </template>
         <template v-slot:action="{text,record}">
           <a-space size="small">
             <a-button type="primary" @click="edit(record)">
@@ -150,13 +153,8 @@
           dataIndex: 'name' // 这是后端返回来的key，对应的value
         },
         {
-          title: '分类一',
-          key: 'category1Id',
-          dataIndex: 'category1Id'
-        },
-        {
-          title: '分类二',
-          dataIndex: 'category2Id'
+          title: '分类',
+          slots: {customRender: 'category'}
         },
         {
           title: '文档数',
@@ -343,13 +341,14 @@
        * 数据查询——分类管理
        */
       const cateTree = ref();
+      let categorys : any;
       const handleQueryCategory = () => {
         loading.value = true;
         axios.get("/category/all").then((response) => {
           loading.value = false;
           const data = response.data;
           if (data.success) {
-            const categorys = data.content;
+            categorys = data.content;
 
             cateTree.value = [];
             cateTree.value = Tool.array2Tree(categorys,0);
@@ -358,6 +357,16 @@
           }
         })
       };
+
+      const getCategoryName = (cid : number) => {
+        let result = "";
+        categorys.forEach((item: any) => {
+          if (item.id === cid) {
+            result = item.name;
+          }
+        });
+        return result;
+      }
 
       onMounted(() => {
         handleQueryCategory();
@@ -392,7 +401,8 @@
         beforeUpload,
 
         categoryIds,
-        cateTree
+        cateTree,
+        getCategoryName
       }
     }
   })

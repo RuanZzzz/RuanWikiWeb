@@ -180,6 +180,8 @@
        */
       const handleQuery = (params: any) => {
         loading.value = true;
+        // 如果不清空现有的数据，则可能导致编辑成功后回显旧数据
+        ebooks.value = [];
         axios.get("/ebook/list",{
           params: {
             page : params.page,

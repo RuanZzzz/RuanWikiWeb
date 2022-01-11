@@ -87,12 +87,16 @@
       <a-form-item label="名称">
         <a-input v-model:value="ebook.name" />
       </a-form-item>
-<!--      <a-form-item label="分类一">-->
-<!--        <a-input v-model:value="ebook.category1Id" />-->
-<!--      </a-form-item>-->
-<!--      <a-form-item label="分类二">-->
-<!--        <a-input v-model:value="ebook.category2Id" />-->
-<!--      </a-form-item>-->
+      <a-form-item label="分类">
+        <!--
+        v-model:value="categoryIds" 是一个数组，就是所选类别后的id数组
+        -->
+        <a-cascader
+            v-model:value="categoryIds"
+            :field-names="{label: 'name',value: 'id', children: 'children'}"
+            :options="cateTree"
+        />
+      </a-form-item>
       <a-form-item label="描述">
         <a-input v-model:value="ebook.description" type="text"/>
       </a-form-item>
@@ -210,10 +214,14 @@
       };
 
       // 表单
+      // categoryIds为数组，例如[100,101] 对应的就是 前端开发 / Vue
+      const categoryIds = ref();
       const ebook = ref({
         id: ref<string>(''),
         name: ref<string>(''),
-        description: ref<string>('')
+        description: ref<string>(''),
+        category1Id : ref<string>(''),
+        category2Id : ref<string>('')
       });
       const modalVisible = ref(false);
       const modalLoading = ref(false);
@@ -223,6 +231,8 @@
         axios.post("/ebook/save",{
           id : ebook.value.id,
           name : ebook.value.name,
+          category1Id : categoryIds.value[0],
+          category2Id : categoryIds.value[1],
           description : ebook.value.description,
           imgDirPath : imgDirPath.value
         }).then((response) => {
@@ -251,6 +261,7 @@
         console.log(record);
         modalVisible.value = true;
         ebook.value = Tool.copy(record);
+        categoryIds.value = [ebook.value.category1Id,ebook.value.category2Id]
 
         // 如果有图片，就回显在编辑里和存储图片的地址中
         if (record.cover != null) {
@@ -268,7 +279,9 @@
         ebook.value = {
           id: "",
           name: "",
-          description: ""
+          description: "",
+          category1Id: "",
+          category2Id: ""
         };
         imgDirPath.value = "";
         imageUrl.value = "";
@@ -326,7 +339,28 @@
         return isJpgOrPng && isLt2M;
       };
 
+      /**
+       * 数据查询——分类管理
+       */
+      const cateTree = ref();
+      const handleQueryCategory = () => {
+        loading.value = true;
+        axios.get("/category/all").then((response) => {
+          loading.value = false;
+          const data = response.data;
+          if (data.success) {
+            const categorys = data.content;
+
+            cateTree.value = [];
+            cateTree.value = Tool.array2Tree(categorys,0);
+          }else {
+            message.error(data.message);
+          }
+        })
+      };
+
       onMounted(() => {
+        handleQueryCategory();
         handleQuery({
           page: 1,
           pageSize: pagination.value.pageSize
@@ -356,6 +390,9 @@
         imgDirPath,
         handleChange,
         beforeUpload,
+
+        categoryIds,
+        cateTree
       }
     }
   })

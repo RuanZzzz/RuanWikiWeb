@@ -354,6 +354,12 @@
 
             cateTree.value = [];
             cateTree.value = Tool.array2Tree(categorys,0);
+
+            // 加载完分类后，再加载电子书
+            handleQuery({
+              page: 1,
+              pageSize: pagination.value.pageSize
+            });
           }else {
             message.error(data.message);
           }
@@ -372,10 +378,6 @@
 
       onMounted(() => {
         handleQueryCategory();
-        handleQuery({
-          page: 1,
-          pageSize: pagination.value.pageSize
-        });
       });
 
       return {

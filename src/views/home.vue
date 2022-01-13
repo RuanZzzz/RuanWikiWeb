@@ -8,10 +8,8 @@
           @click="handleClick"
       >
         <a-menu-item key="welcome">
-          <router-link to="'/'">
-            <MailOutlined/>
-            <span>欢迎</span>
-          </router-link>
+          <MailOutlined/>
+          <span>欢迎</span>
         </a-menu-item>
         <a-sub-menu v-for="item in cateTree" :key="item.id">
           <template v-slot:title>
@@ -26,8 +24,10 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-
-      <a-list item-layout="vertical" size="large" :grid="{ gutter: 20,column: 3 }" :data-source="ebooks">
+      <div class="welcome" v-show="isShowWelcome">
+        <h1>欢迎来到软烧香的wiki</h1>
+      </div>
+      <a-list v-show="!isShowWelcome" item-layout="vertical" size="large" :grid="{ gutter: 20,column: 3 }" :data-source="ebooks">
         <template #renderItem="{ item }">
           <a-list-item key="item.name">
             <template #actions>
@@ -64,6 +64,8 @@ export default defineComponent({
 
     // 让ebooks变成一个响应式的数据
     const ebooks = ref()
+    // 用于显示欢迎还是电子书
+    const isShowWelcome = ref(true);
 
     const cateTree = ref();
     let categorys:any;
@@ -82,8 +84,13 @@ export default defineComponent({
       })
     };
 
-    const handleClick = () => {
-      console.log("menu click")
+    const handleClick = (value:any) => {
+      // if (value.key === 'welcome') {
+      //   isShowWelcome.value = true;
+      // }else {
+      //   isShowWelcome.value = false;
+      // }
+      isShowWelcome.value = value.key === 'welcome';
     };
 
     // 在onMounted里面就可以写一些初始化的逻辑
@@ -117,7 +124,9 @@ export default defineComponent({
       ],
 
       handleClick,
-      cateTree
+      cateTree,
+
+      isShowWelcome
     }
   }
 });

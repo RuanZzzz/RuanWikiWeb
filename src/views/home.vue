@@ -66,6 +66,8 @@ export default defineComponent({
     const ebooks = ref()
     // 用于显示欢迎还是电子书
     const isShowWelcome = ref(true);
+    // 电子书分类2的id
+    let categoryId2 = 0;
 
     const cateTree = ref();
     let categorys:any;
@@ -84,27 +86,34 @@ export default defineComponent({
       })
     };
 
-    const handleClick = (value:any) => {
-      // if (value.key === 'welcome') {
-      //   isShowWelcome.value = true;
-      // }else {
-      //   isShowWelcome.value = false;
-      // }
-      isShowWelcome.value = value.key === 'welcome';
-    };
-
-    // 在onMounted里面就可以写一些初始化的逻辑
-    onMounted(() => {
-      handleQueryCategory();
+    const handleQueryEbook = () => {
       axios.get("/ebook/list",{
         params: {
           page : 1,
-          pageSize : 100
+          pageSize : 100,
+          categoryId2 : categoryId2
         }
       }).then((response) => {
         const data = response.data;
         ebooks.value = data.content.list
       });
+    };
+
+    const handleClick = (value:any) => {
+      if (value.key === 'welcome') {
+        isShowWelcome.value = true;
+      }else {
+        categoryId2 = value.key;
+        isShowWelcome.value = false;
+        handleQueryEbook();
+      }
+      //isShowWelcome.value = value.key === 'welcome';
+    };
+
+    // 在onMounted里面就可以写一些初始化的逻辑
+    onMounted(() => {
+      handleQueryCategory();
+      //handleQueryEbook();
     })
 
     // 在setup的方法最后要return出去，这样界面就可以拿到需要的变量

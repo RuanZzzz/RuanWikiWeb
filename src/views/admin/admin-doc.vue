@@ -79,11 +79,12 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from "vue";
+import {defineComponent, onMounted, ref, createVNode} from "vue";
 import axios from "axios";
-import { message } from "ant-design-vue";
+import { message,Modal } from "ant-design-vue";
 import {Tool} from "@/util/tool";
 import {useRoute} from "vue-router";
+import ExclamationCircleOutlined from "@ant-design/icons-vue/ExclamationCircleOutlined";
 
 export default defineComponent({
   name: 'admin-category',
@@ -199,7 +200,8 @@ export default defineComponent({
     };
 
     // 组装需要删除的id
-    const ids:Array<string> = [];
+    const deleteIds: Array<string> = [];
+    const deleteNames: Array<string> = [];
     const getDeleteIds = (treeSelectData: any, id: any) => {
       // console.log(treeSelectData, id);
       // 遍历数组，即遍历某一层节点
@@ -207,7 +209,8 @@ export default defineComponent({
         const node = treeSelectData[i];
         if (node.id === id) {
           // 将需要删除的id push进去ids中
-          ids.push(id);
+          deleteIds.push(id);
+          deleteNames.push(node.name);
 
           // 遍历所有子节点
           const children = node.children;
@@ -254,18 +257,27 @@ export default defineComponent({
 
     // 删除
     const handleDelete = (id: number) => {
+      // 清空数组，否则多次删除时，数组会一直增加
+      deleteIds.length = 0;
+      deleteNames.length = 0;
       getDeleteIds(docTree.value,id);
-      axios.delete("/doc/delete/" + ids.join(",")).then((response) => {
-        const data = response.data;
+      Modal.confirm({
+        title: '重要提醒',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: '将删除: 【' + deleteNames.join(",") + '】删除后不可恢复，确认删除？',
+        onOk() {
+          axios.delete("/doc/delete/" + deleteIds.join(",")).then((response) => {
+            const data = response.data;
 
-        if (data.success) {
-          message.success('删除成功');
+            if (data.success) {
+              message.success('删除成功');
 
-          // 重新加载列表
-          handleQuery();
+              // 重新加载列表
+              handleQuery();
+            }
+          });
         }
       })
-
     }
 
     onMounted(() => {

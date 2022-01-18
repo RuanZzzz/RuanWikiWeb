@@ -61,13 +61,11 @@
       <a-form-item label="父文档">
         <a-tree-select
             v-model:value="doc.parent"
-            show-search
             style="width: 100%"
             :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-            placeholder="请选择父文档"
-            allow-clear
-            tree-default-expand-all
             :tree-data="treeSelectData"
+            placeholder="请选择父文档"
+            tree-default-expand-all
             :fieldNames="{label: 'name', key: 'id', value: 'id' }"
         >
         </a-tree-select>
@@ -85,10 +83,14 @@ import {defineComponent, onMounted, ref} from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
 import {Tool} from "@/util/tool";
+import {useRoute} from "vue-router";
 
 export default defineComponent({
   name: 'admin-category',
   setup() {
+    // route获取路由的各种信息
+    const route = useRoute();
+    console.log("路由" + route.query.ebookId);
     const param = ref();  // 用在搜索框的赋值
     param.value = {};   // 搜索框的对象，目前用到的属性是param.name
 
@@ -206,18 +208,20 @@ export default defineComponent({
       setDisable(treeSelectData.value, record.id);
 
       // 为选择树添加一个"无"
-      treeSelectData.value.unshift({id: 0, name: '无', value: 0});
+      treeSelectData.value.unshift({id: 0, name: '无'});
     }
 
     // 新增按钮
     const add = () => {
       modalVisible.value = true;
-      doc.value = {};
+      doc.value = {
+        ebookId: route.query.ebookId
+      };
 
       treeSelectData.value = Tool.copy(docTree.value);
 
       // 为选择树添加一个"无"
-      treeSelectData.value.unshift({id: 0, name: '无'});
+      treeSelectData.value.unshift({id: 0, name: '无', value: 0});
     }
 
     // 删除

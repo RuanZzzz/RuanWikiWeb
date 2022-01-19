@@ -89,6 +89,7 @@ import {Tool} from "@/util/tool";
 import {useRoute} from "vue-router";
 import ExclamationCircleOutlined from "@ant-design/icons-vue/ExclamationCircleOutlined";
 import E from 'wangeditor'
+import hljs from 'highlight.js'
 
 export default defineComponent({
   name: 'admin-category',
@@ -247,6 +248,7 @@ export default defineComponent({
       treeSelectData.value.unshift({id: 0, name: '无'});
       setTimeout(function () {
         const editor = new E('#content');
+        editor.highlight = hljs
         editor.create();
       },100)
     }
@@ -264,6 +266,7 @@ export default defineComponent({
       treeSelectData.value.unshift({id: 0, name: '无'});
       setTimeout(function () {
         const editor = new E('#content');
+        editor.highlight = hljs
         editor.create();
       },100)
     }

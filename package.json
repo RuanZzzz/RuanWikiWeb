@@ -13,6 +13,7 @@
     "@ant-design/icons-vue": "^6.0.1",
     "ant-design-vue": "^3.0.0-alpha.16",
     "axios": "^0.24.0",
+    "highlight.js": "^11.4.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0",

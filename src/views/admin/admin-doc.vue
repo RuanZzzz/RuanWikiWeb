@@ -96,7 +96,6 @@ export default defineComponent({
   setup() {
     // route获取路由的各种信息
     const route = useRoute();
-    console.log("路由" + route.query.ebookId);
     const param = ref();  // 用在搜索框的赋值
     param.value = {};   // 搜索框的对象，目前用到的属性是param.name
 
@@ -184,7 +183,6 @@ export default defineComponent({
         const node = treeSelectData[i];
         if (node.id === id) {
             // 如果当前节点就是目标节点
-            console.log("disabled", node);
             // 将目标节点设置为disabled
             node.disabled = true;
 
@@ -235,6 +233,16 @@ export default defineComponent({
       }
     };
 
+    // 初始化富文本
+    let editor:any;
+    const createEditor = () => {
+      editor = new E('#content');
+      editor.highlight = hljs;
+      editor.create();
+    }
+
+    //const editor = new E('#content');
+
     // 编辑按钮
     const edit = (record: any) => {
       modalVisible.value = true;
@@ -247,10 +255,13 @@ export default defineComponent({
       // 为选择树添加一个"无"
       treeSelectData.value.unshift({id: 0, name: '无'});
       setTimeout(function () {
-        const editor = new E('#content');
-        editor.highlight = hljs
-        editor.create();
-      },100)
+        if (editor == null) {
+          createEditor();
+        }else {
+          editor.destroy();//这里做了一次判断，判断编辑器是否被创建，如果创建了就先销毁。
+          createEditor();
+        }
+      })
     }
 
     // 新增按钮
@@ -265,10 +276,13 @@ export default defineComponent({
       // 为选择树添加一个"无"
       treeSelectData.value.unshift({id: 0, name: '无'});
       setTimeout(function () {
-        const editor = new E('#content');
-        editor.highlight = hljs
-        editor.create();
-      },100)
+        if (editor == null) {
+          createEditor();
+        }else {
+          editor.destroy();//这里做了一次判断，判断编辑器是否被创建，如果创建了就先销毁。
+          createEditor();
+        }
+      })
     }
 
     // 删除

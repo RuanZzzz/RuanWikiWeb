@@ -22,12 +22,14 @@
           </p>
           <!-- 分类表格 -->
           <a-table
+              v-if="docTree.length > 0"
               :columns = "columns"
               :row-key="record => record.id"
               :data-source="docTree"
               :loading="loading"
               :pagination="false"
               size="small"
+              :defaultExpandAllRows="true"
           >
             <template #name="{text,record}">
               {{record.sort}} {{text}}

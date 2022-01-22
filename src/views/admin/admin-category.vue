@@ -86,7 +86,7 @@
   import {Tool} from "@/util/tool";
 
   export default defineComponent({
-    name: 'admin-category',
+    name: 'AdminCategory',
     setup() {
       const param = ref();  // 用在搜索框的赋值
       param.value = {};   // 搜索框的对象，目前用到的属性是param.name
@@ -94,6 +94,7 @@
       const categorys = ref();
       const loading = ref(false);
       const cateTree = ref();
+      cateTree.value = [];
 
       const columns = [
         {

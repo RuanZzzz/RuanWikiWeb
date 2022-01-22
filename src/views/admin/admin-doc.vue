@@ -3,7 +3,7 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-      <a-row>
+      <a-row :gutter="24">
         <a-col :span="8">
           <p>
             <a-form layout="inline" :model="param">
@@ -27,10 +27,14 @@
               :data-source="docTree"
               :loading="loading"
               :pagination="false"
+              size="small"
           >
+            <template #name="{text,record}">
+              {{record.sort}} {{text}}
+            </template>
             <template v-slot:action="{text,record}">
               <a-space size="small">
-                <a-button type="primary" @click="edit(record)">
+                <a-button type="primary" @click="edit(record)" size="small">
                   编辑
                 </a-button>
                 <a-popconfirm
@@ -38,6 +42,7 @@
                     ok-text="是"
                     cancel-text="否"
                     @confirm="handleDelete(record.id)"
+                    size="small"
                 >
                   <a-button type="danger">
                     删除
@@ -48,12 +53,20 @@
           </a-table>
         </a-col>
         <a-col :span="16">
-          <a-form :model="doc" :label-col="{ span: 6 }" >
-            {{doc.name}}
-            <a-form-item label="名称">
-              <a-input v-model:value="doc.name" />
+          <p>
+            <a-form layout="inline" :modal="param">
+              <a-form-item>
+                <a-button type="primary" @click="handleSave()">
+                  保存
+                </a-button>
+              </a-form-item>
+            </a-form>
+          </p>
+          <a-form :model="doc" layout="vertical" >
+            <a-form-item>
+              <a-input v-model:value="doc.name" placeholder="名称" />
             </a-form-item>
-            <a-form-item label="父文档">
+            <a-form-item>
               <a-tree-select
                   v-model:value="doc.parent"
                   style="width: 100%"
@@ -65,10 +78,10 @@
               >
               </a-tree-select>
             </a-form-item>
-            <a-form-item label="顺序">
-              <a-input v-model:value="doc.sort" type="text"/>
+            <a-form-item>
+              <a-input v-model:value="doc.sort" type="text" placeholder="顺序"/>
             </a-form-item>
-            <a-form-item label="内容">
+            <a-form-item>
               <div id="content"></div>
             </a-form-item>
           </a-form>
@@ -108,11 +121,22 @@ export default defineComponent({
     const docs = ref();
     const loading = ref(false);
     const docTree = ref();
+    docTree.value = [];
+
+    // 初始化富文本
+    let editor:any;
+    const createEditor = () => {
+      editor = new E('#content');
+      editor.config.zIndex = 0;
+      editor.highlight = hljs;
+      editor.create();
+    }
 
     const columns = [
       {
         title: '名称',
-        dataIndex: 'name' // 这是后端返回来的key，对应的value
+        dataIndex: 'name', // 这是后端返回来的key，对应的value
+        slots: { customRender: 'name' }
       },
       {
         title: '父文档',
@@ -158,7 +182,7 @@ export default defineComponent({
     const modalVisible = ref(false);
     const modalLoading = ref(false);
 
-    const handleModalOk = () => {
+    const handleSave = () => {
       modalLoading.value = true;
 
       axios.post("/doc/save",doc.value).then((response) => {
@@ -239,15 +263,6 @@ export default defineComponent({
       }
     };
 
-    // 初始化富文本
-    let editor:any;
-    const createEditor = () => {
-      editor = new E('#content');
-      editor.highlight = hljs;
-      editor.create();
-    }
-
-    //const editor = new E('#content');
 
     // 编辑按钮
     const edit = (record: any) => {
@@ -260,23 +275,14 @@ export default defineComponent({
 
       // 为选择树添加一个"无"
       treeSelectData.value.unshift({id: '0', name: '无'});
-      setTimeout(function () {
-        if (editor == null) {
-          createEditor();
-        }else {
-          editor.destroy();//这里做了一次判断，判断编辑器是否被创建，如果创建了就先销毁。
-          createEditor();
-        }
-      })
     }
 
     // 新增按钮
     const add = () => {
-      console.log(doc.value);
-      doc.value = {};
-      console.log(doc.value);
       modalVisible.value = true;
       doc.value = {
+        name : "",
+        sort : "",
         ebookId: route.query.ebookId
       };
 
@@ -284,14 +290,6 @@ export default defineComponent({
 
       // 为选择树添加一个"无"
       treeSelectData.value.unshift({id: '0', name: '无'});
-      setTimeout(function () {
-        if (editor == null) {
-          createEditor();
-        }else {
-          editor.destroy();//这里做了一次判断，判断编辑器是否被创建，如果创建了就先销毁。
-          createEditor();
-        }
-      })
     }
 
     // 删除
@@ -339,7 +337,7 @@ export default defineComponent({
       doc,
       modalVisible,
       modalLoading,
-      handleModalOk,
+      handleSave,
 
       treeSelectData
 

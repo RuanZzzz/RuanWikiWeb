@@ -194,8 +194,6 @@ export default defineComponent({
         const data = response.data;
 
         if (data.success) {
-          modalVisible.value = false;
-
           message.success('操作成功');
 
           // 重新加载列表
@@ -281,7 +279,8 @@ export default defineComponent({
 
     // 编辑按钮
     const edit = (record: any) => {
-      modalVisible.value = true;
+      // 清空富文本框
+      editor.txt.html("");
       doc.value = Tool.copy(record);
       handleQueryContent();
 
@@ -295,7 +294,8 @@ export default defineComponent({
 
     // 新增按钮
     const add = () => {
-      modalVisible.value = true;
+      // 清空富文本框
+      editor.txt.html("");
       doc.value = {
         name : "",
         sort : "",

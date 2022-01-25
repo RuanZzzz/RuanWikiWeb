@@ -124,6 +124,9 @@ export default defineComponent({
     const loading = ref(false);
     const docTree = ref();
     docTree.value = [];
+    // 因为树选择组件的属性状态，会随当前编辑的节点而变化，所以单独声明一个响应式变量
+    const treeSelectData = ref();
+    treeSelectData.value = [];
 
     // 初始化富文本
     let editor:any;
@@ -170,6 +173,11 @@ export default defineComponent({
 
           docTree.value = [];
           docTree.value = Tool.array2Tree(docs.value,0);
+
+          // 父文档下拉框初始化，相当于之前点击新增
+          treeSelectData.value = Tool.copy(docTree.value);
+          // 为选择树添加一个”无“
+          treeSelectData.value.unshift({id: '0', name: '无'});
         }else {
           message.error(data.message);
         }
@@ -177,9 +185,6 @@ export default defineComponent({
     };
 
     // 表单
-    // 因为树选择组件的属性状态，会随当前编辑的节点而变化，所以单独声明一个响应式变量
-    const treeSelectData = ref();
-    treeSelectData.value = [];
     //const doc = ref({});
     const doc = ref();
     doc.value = {};

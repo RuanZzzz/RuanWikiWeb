@@ -13,7 +13,7 @@
           </a-tree>
         </a-col>
         <a-col :span="18">
-
+          <div :innerHTML="html"></div>
         </a-col>
       </a-row>
     </a-layout-content>
@@ -32,6 +32,7 @@
     setup() {
       const route = useRoute();
       const docs = ref();
+      const html = ref();
       const docTree = ref();
       docTree.value = [];
 
@@ -52,12 +53,36 @@
         })
       };
 
+      // 内容查询
+      const handleQueryContent = (id:number) => {
+        axios.get("/doc/find-content/" + id).then((response) => {
+          const data = response.data;
+          console.log(data);
+          if (data.success) {
+            html.value = data.content;
+          }else {
+            message.error(data.message);
+          }
+        })
+      }
+
+      // 选择节点方法
+      const onSelect = (selectedKeys: any,info: any) => {
+        console.log('selected',selectedKeys,info);
+        if (Tool.isNotEmpty(selectedKeys)) {
+          // 加载内容
+          handleQueryContent(selectedKeys[0]);
+        }
+      }
+
       onMounted(() => {
         handleQuery();
       });
 
       return {
-        docTree
+        docTree,
+        onSelect,
+        html
       }
 
     }

@@ -9,6 +9,7 @@
             @select="onSelect"
             :fieldNames="{title: 'name', key: 'id', value: 'id'}"
             :defaultExpandAll="true"
+            :defaultSelectedKeys="defaultSelectedKeys"
           >
           </a-tree>
         </a-col>
@@ -35,23 +36,8 @@
       const html = ref();
       const docTree = ref();
       docTree.value = [];
-
-      /**
-       * 数据查询
-       */
-      const handleQuery = () => {
-        axios.get("/doc/all/" + route.query.ebookId).then((response) => {
-          const data = response.data;
-          if (data.success) {
-            docs.value = data.content;
-
-            docTree.value = [];
-            docTree.value = Tool.array2Tree(docs.value,0);
-          }else {
-            message.error(data.message);
-          }
-        })
-      };
+      const defaultSelectedKeys = ref();
+      defaultSelectedKeys.value = [];
 
       // 内容查询
       const handleQueryContent = (id:number) => {
@@ -65,6 +51,28 @@
           }
         })
       }
+
+      /**
+       * 数据查询
+       */
+      const handleQuery = () => {
+        axios.get("/doc/all/" + route.query.ebookId).then((response) => {
+          const data = response.data;
+          if (data.success) {
+            docs.value = data.content;
+
+            docTree.value = [];
+            docTree.value = Tool.array2Tree(docs.value,0);
+
+            if (Tool.isNotEmpty(docTree)) {
+              defaultSelectedKeys.value = [docTree.value[0].id];
+              handleQueryContent(docTree.value[0].id);
+            }
+          }else {
+            message.error(data.message);
+          }
+        })
+      };
 
       // 选择节点方法
       const onSelect = (selectedKeys: any,info: any) => {
@@ -82,7 +90,8 @@
       return {
         docTree,
         onSelect,
-        html
+        html,
+        defaultSelectedKeys
       }
 
     }

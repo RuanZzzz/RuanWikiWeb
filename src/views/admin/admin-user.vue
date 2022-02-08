@@ -79,7 +79,8 @@ import {defineComponent, onMounted, ref} from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
 import {Tool} from "@/util/tool";
-import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
+declare let hexMd5: any;
+declare let KEY: any;
 
 export default defineComponent({
   name: 'AdminUser',
@@ -168,7 +169,7 @@ export default defineComponent({
         id : user.value.id,
         name : user.value.name,
         loginName : user.value.loginName,
-        password : user.value.password
+        password : hexMd5(user.value.password + KEY)
       }).then((response) => {
         modalLoading.value = false;
         const data = response.data;

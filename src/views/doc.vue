@@ -15,6 +15,14 @@
           </a-tree>
         </a-col>
         <a-col :span="18">
+          <div>
+            <h2>{{doc.name}}</h2>
+            <div>
+              <span>阅读数：{{doc.viewCount}}</span> &nbsp; &nbsp;
+              <span>点赞数：{{doc.voteCount}}</span>
+            </div>
+            <a-divider style="height: 2px; background-color: #9999cc" />
+          </div>
           <div class="wangeditor" :innerHTML="html"></div>
         </a-col>
       </a-row>
@@ -39,6 +47,9 @@
       docTree.value = [];
       const defaultSelectedKeys = ref();
       defaultSelectedKeys.value = [];
+      // 当前选中的文档
+      const doc = ref();
+      doc.value = {};
 
       // 内容查询
       const handleQueryContent = (id:number) => {
@@ -68,6 +79,8 @@
             if (Tool.isNotEmpty(docTree)) {
               defaultSelectedKeys.value = [docTree.value[0].id];
               handleQueryContent(docTree.value[0].id);
+              // 初始显示文档信息
+              doc.value = docTree.value[0];
             }
           }else {
             message.error(data.message);
@@ -79,6 +92,8 @@
       const onSelect = (selectedKeys: any,info: any) => {
         console.log('selected',selectedKeys,info);
         if (Tool.isNotEmpty(selectedKeys)) {
+          // 选中某一个节点的时候，加载该节点的文档信息
+          doc.value = info.selectedNodes[0];
           // 加载内容
           handleQueryContent(selectedKeys[0]);
         }
@@ -92,7 +107,8 @@
         docTree,
         onSelect,
         html,
-        defaultSelectedKeys
+        defaultSelectedKeys,
+        doc
       }
 
     }

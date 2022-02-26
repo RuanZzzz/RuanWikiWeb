@@ -141,6 +141,12 @@ export default defineComponent({
     let editor:any;
     const createEditor = () => {
       editor = new E('#content');
+      // 配置 图片上传 接口地址
+      editor.config.uploadImgServer = 'http://127.0.0.1:8084/common/uploadEditorImg';
+      editor.config.uploadFileName = 'file';
+      editor.config.uploadImgHeaders = {
+        token: 100,
+      }
       editor.config.zIndex = 0;
       editor.highlight = hljs;
       editor.create();

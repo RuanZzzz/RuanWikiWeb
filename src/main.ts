@@ -32,6 +32,16 @@ axios.interceptors.request.use(function (config) {
 });
 axios.interceptors.response.use(function (response) {
     console.log('返回结果：', response);
+    if (response.data.success === false) {
+        // 登录失效，先把sessionStorage设置为空
+        store.commit("setUser",{});
+        router.replace({
+            path: '/'
+        })
+    }
+
+
+
     return response;
 },error => {
     console.log('返回错误：',error)

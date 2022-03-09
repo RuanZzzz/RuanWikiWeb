@@ -138,20 +138,38 @@
       };
 
       // 表单
-      const category = ref({});
+      const category = ref({
+        id: ref<string>(''),
+        name : ref<string>(''),
+        parent : ref<string>(''),
+        sort : ref<string>('')
+      });
       const modalVisible = ref(false);
       const modalLoading = ref(false);
       const handleModalOk = () => {
         modalLoading.value = true;
+        let url = '';
+        if (category.value.id == '') {
+          // 新增
+          url = '/category/save';
+        }else {
+          // 编辑
+          url = '/category/update'
+        }
 
-        axios.post("/category/save",category.value).then((response) => {
+        axios.post(url,{
+          id : category.value.id,
+          name : category.value.name,
+          parent : category.value.parent,
+          sort : category.value.parent
+        }).then((response) => {
           modalLoading.value = false;
           const data = response.data;
 
           if (data.success) {
             modalVisible.value = false;
 
-            message.success('操作成功');
+            message.success(data.message);
 
             // 重新加载列表
             handleQuery();
@@ -171,7 +189,12 @@
       // 新增按钮
       const add = () => {
         modalVisible.value = true;
-        category.value = {};
+        category.value = {
+          id: "",
+          name: "",
+          parent: "",
+          sort: ""
+        };
       }
 
       // 删除

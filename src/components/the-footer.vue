@@ -44,20 +44,20 @@ export default defineComponent({
       websocket.onclose = onClose;
     }
 
-    onMounted(() => {
-      //WebSocket
-      if ('WebSocket' in window) {
-        token = Tool.uuid(10);
-        // 连接地址：ws://127.0.0.1:8084/ws/xxx
-        websocket = new WebSocket(process.env.VUE_APP_WS_SERVER + '/ws/' + token);
-        initWebSocket();
-
-        // 关闭
-        // websocket.close();
-      }else {
-        alert("当前浏览器 不支持");
-      }
-    });
+    // onMounted(() => {
+    //   //WebSocket
+    //   if ('WebSocket' in window) {
+    //     token = Tool.uuid(10);
+    //     // 连接地址：ws://127.0.0.1:8084/ws/xxx
+    //     websocket = new WebSocket(process.env.VUE_APP_WS_SERVER + '/ws/' + token);
+    //     initWebSocket();
+    //
+    //     // 关闭
+    //     // websocket.close();
+    //   }else {
+    //     alert("当前浏览器 不支持");
+    //   }
+    // });
 
     return {
       user

@@ -63,9 +63,10 @@
 <script lang="ts">
 import {computed, defineComponent, ref} from 'vue';
 import axios from "axios";
-import {message} from "ant-design-vue";
+import {message, notification} from "ant-design-vue";
 import store from "@/store";
 import router from "@/router";
+import {Tool} from "@/util/tool";
 
 declare let hexMd5: any;
 declare let KEY: any;
@@ -89,7 +90,7 @@ export default defineComponent({
 
     // 登录
     const login = () => {
-      console.log("登录");
+      //console.log("登录");
       loginModalLoading.value = true;
       loginUser.value.password = hexMd5(loginUser.value.password + KEY);
       axios.post('/user/login', loginUser.value).then((response) => {
@@ -99,6 +100,18 @@ export default defineComponent({
           loginModalVisible.value = false;
           message.success("登录成功！");
           store.commit("setUser",data.content);
+
+          // 开始建立websocket连接
+          if ('WebSocket' in window) {
+            // 连接地址：ws://127.0.0.1:8084/ws/xxx
+            websocket = new WebSocket(process.env.VUE_APP_WS_SERVER + '/ws/' + user.value.token);
+            initWebSocket();
+
+            // 关闭
+            // websocket.close();
+          }else {
+            alert("当前浏览器 不支持");
+          }
         }else {
           message.error(data.message);
         }
@@ -112,12 +125,44 @@ export default defineComponent({
         if (data.success) {
           message.success("退出登录成功！");
           store.commit("setUser",{});
+          // 关闭
+          websocket.close()
           router.push("/");
         }else {
           message.error(data.message);
         }
       })
     };
+
+    // websocket连接（登录后才会建立连接）
+    let websocket: any;
+
+    const onOpen = () => {
+      console.log('WebSocket连接成功，状态码：', websocket.readyState);
+    };
+    const onMessage = (event: any) => {
+      console.log('WebSocket收到消息：', event.data);
+      notification['success']({
+        message:'收到消息',
+        description:event.data
+      })
+    }
+    const onError = () => {
+      console.log('WebSocket连接错误，状态码：', websocket.readyState)
+    };
+    const onClose = () => {
+      console.log('WebSocket连接关闭，状态码：', websocket.readyState)
+    };
+    const initWebSocket = () => {
+      // 连接成功
+      websocket.onopen = onOpen;
+      // 收到消息的回调
+      websocket.onmessage = onMessage;
+      // 连接错误
+      websocket.onerror = onError;
+      // 连接关闭的回调
+      websocket.onclose = onClose;
+    }
 
     return {
       loginModalVisible,

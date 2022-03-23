@@ -40,7 +40,7 @@
                 {{ item.viewCount  }}
               </span>
               <span>
-                <component v-bind:is="'LikeOutlined'" style="margin-right: 8px" />
+                <component v-bind:is="'LikeOutlined'" style="margin-right: 8px" @click="vote(item.id)"/>
                 {{ item.voteCount }}
               </span>
             </template>
@@ -120,6 +120,16 @@ export default defineComponent({
       //isShowWelcome.value = value.key === 'welcome';
     };
 
+    // 点赞
+    const vote = (ebookId: any) => {
+      axios.get('/ebook/vote/' + ebookId).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          message.success("点赞成功");
+        }
+      })
+    }
+
     // 在onMounted里面就可以写一些初始化的逻辑
     onMounted(() => {
       handleQueryCategory();
@@ -145,7 +155,8 @@ export default defineComponent({
       handleClick,
       cateTree,
 
-      isShowWelcome
+      isShowWelcome,
+      vote
     }
   }
 });
